@@ -41,9 +41,6 @@ def lune(liste_date):
             jours_passe+=1
             jour+=1
     
-            print(jour)
-            print(mois)
-            print(annee)
       
             if annee in annees_bissextiles:
                 jours_par_mois = jours_par_mois_bissextile
