@@ -1,4 +1,4 @@
-def extraire_dates (fichier):
+def extraire_dates (fichier): ## Anna
     liste_dates = []
     contenu_fichier = open(fichier, "r")
     chaine =  contenu_fichier.read()
@@ -25,7 +25,7 @@ jours_par_mois_normal = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31]
 jours_par_mois_bissextile = [31, 29, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31]
 annees_bissextiles = [2000, 2004, 2008]
 
-def lune(liste_date):
+def lune(liste_date): ## Anna
     dico_date = {}
 
     for date in liste_date:
@@ -62,4 +62,52 @@ def lune(liste_date):
     dico_date[jours_passe] = date_original
 
     return dico_date
+
+
+def jour_de_la_smn(jour, mois, annee): ## Anais
+    if annee < 2000 or annee > 2010:
+        return "Année invalide"
+    
+    jours = ["Samedi", "Dimanche", "Lundi", "Mardi", "Mercredi", "Jeudi", "Vendredi"]
+    annees_bissextiles = [2000, 2004, 2008]
+    jours_par_mois_normal = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31]
+    jours_par_mois_bissextile = [31, 29, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31]
+    
+    if annee in annees_bissextiles:
+        jours_par_mois = jours_par_mois_bissextile
+    else:
+        jours_par_mois = jours_par_mois_normal
+    
+    total_jours = 0
+        
+    for an in range(2000, annee):
+        if an in annees_bissextiles:
+            total_jours += 366
+        else:
+            total_jours += 365
+    
+    for m in range(mois - 1):  
+        total_jours += jours_par_mois[m]
+    total_jours += jour - 1
+ 
+    jour_debut = 0  
+     
+    jour_semaine = jour_debut
+    for i in range(total_jours):
+        jour_semaine += 1
+        if jour_semaine == 7:
+            jour_semaine = 0
+    
+    return jours[jour_semaine]  ## Anais 
+def compte_naissances(liste_jours):
+    resultat = {}                 # Créer un dictionnaire vide pour stocker les résultats
+    for jour in liste_jours:            # Parcourir la liste des jours
+        if jour in resultat:      # Si le jour est déjà dans le dictionnaire, on ajoute 1
+            resultat[jour] += 1
+        else:                     # Sinon, on ajoute le jour avec une valeur de 1
+            resultat[jour] = 1
+    ordre_jours = ["lundi", "mardi", "mercredi", "jeudi", "vendredi", "samedi", "dimanche"]       # Trier le dictionnaire par ordre des jours de la semaine
+    resultat_trie = {jour: resultat[jour] for jour in ordre_jours if jour in resultat}
+
+    return resultat_trie
 
