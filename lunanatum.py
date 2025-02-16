@@ -1,14 +1,17 @@
-def extraire_dates(fichier): # Anna
+def extraire_dates(fichiers): # Anna
     liste_dates = []
-    contenu_fichier = open(fichier, "r",encoding='ISO-8859-1')
-    chaine = contenu_fichier.read()
-    for i in range(len(chaine)-1):
-        if chaine[i] == '\n':
-            date = chaine[i+1:i+11]
-            liste_dates.append(date)
-    contenu_fichier.close()
-    return liste_dates  
+    for fichier in fichiers :
+        contenu_fichier = open(fichier, "r",encoding='ISO-8859-1')
+        chaine = contenu_fichier.read()
+        for i in range(len(chaine)-1):
+            if chaine[i] == '\n':
+                date = chaine[i+1:i+11]
+                liste_dates.append(date)
+        contenu_fichier.close()
+    return liste_dates
 
+
+fichiers = ['PN_test.csv','PN_22.csv','PN_21.csv','PN_12.csv','PN_11.csv','PN_02.csv','PN_01.csv']
 
 
 pleine_lune = ['21/01/2000','19/02/2000','20/03/2000','18/04/2000','18/05/2000','16/06/2000','16/07/2000','15/08/2000','13/09/2000','13/10/2000','11/11/2000','11/12/2000',
@@ -18,7 +21,7 @@ pleine_lune = ['21/01/2000','19/02/2000','20/03/2000','18/04/2000','18/05/2000',
 '07/01/2004','06/02/2004','06/03/2004','05/04/2004','04/05/2004','03/06/2004','02/07/2004','31/07/2004','30/08/2004','28/09/2004','28/10/2004','26/11/2004','26/12/2004',
 '25/01/2005','24/02/2005','25/03/2005','24/04/2005','23/05/2005','22/06/2005','21/07/2005','19/08/2005','18/09/2005','17/10/2005','16/11/2005','15/12/2005',
 '14/01/2006','13/02/2006','14/03/2006','13/04/2006','13/05/2006','11/06/2006','11/07/2006','09/08/2006','07/09/2006','07/10/2006','05/11/2006','05/12/2006',
-'03/01/2007','02/02/2007','03/03/2007','02/04/2007','02/05/2007','01/06/2007','30/07/2007','28/08/2007','26/09/2007','26/10/2007','24/11/2007','24/12/2007',
+'03/01/2007','02/02/2007','03/03/2007','02/04/2007','02/05/2007','01/06/2007','30/06/2007','30/07/2007','28/08/2007','26/09/2007','26/10/2007','24/11/2007','24/12/2007',
 '22/01/2008','21/02/2008','21/03/2008','20/04/2008','20/05/2008','18/06/2008','18/07/2008','16/08/2008','15/09/2008','14/10/2008','13/11/2008','12/12/2008',
 '11/01/2009','09/02/2009','11/03/2009','09/04/2009','09/05/2009','07/06/2009','07/07/2009','06/08/2009','04/09/2009','04/10/2009','02/11/2009','02/12/2009','31/12/2009',
 '30/01/2010','28/02/2010','30/03/2010','28/04/2010','27/05/2010','26/06/2010','26/07/2010','24/08/2010','23/09/2010','23/10/2010','21/11/2010','21/12/2010']
@@ -27,56 +30,73 @@ jours_par_mois_normal = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31]
 jours_par_mois_bissextile = [31, 29, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31]
 annees_bissextiles = [2000, 2004, 2008]
 
-def lune(fichier): ## Anna et Louane
+def lune(fichier): # Louane et Anna
     
     liste_date = extraire_dates(fichier)
     dico_date = {}
-
+    
     for date in liste_date:
-        jours_passe = 0
-        date_original = date
+        annee = int(date[6:10])
+        if 2000 <= annee <= 2010:
+           dico_date[date] = jourPasse(date)
         
-        
-        
-        while date not in pleine_lune :
-            
-            mois = int(date[3:5])
-            jour = int(date[0:2])
-            annee = int(date[6:10])
-             
-            jours_passe += 1
-            jour += 1
-            
-            if annee in annees_bissextiles:
-                jours_par_mois = jours_par_mois_bissextile
-            else:
-                jours_par_mois = jours_par_mois_normal
-            
-            if jour > jours_par_mois[mois - 1]:
-                jour = 1
-                mois += 1
-            
-            if mois > 12:
-                mois = 1
-                annee += 1                            
-           
-            if jour < 10:
-                jour = '0' + str(jour)
-            else:
-                jour = str(jour)
-
-            if mois < 10:
-                mois = '0' + str(mois)
-            else:
-                mois = str(mois)
-
-
-            date = jour + '/' + mois + '/' + str(annee)
-   
-        
-        dico_date[date_original] = jours_passe
-
     return dico_date
+
+
+def jourPasse(date): # Anna et Louane
+    jours_passe = 0
+
+    while date not in pleine_lune :
+        mois = int(date[3:5])
+        jour = int(date[0:2])
+        annee = int(date[6:10])
+             
+        jours_passe +=1  
+        jour -= 1 
+        
+        if annee in annees_bissextiles:
+            jours_par_mois = jours_par_mois_bissextile
+        else:
+            jours_par_mois = jours_par_mois_normal
+        
+        if jour < 1:  
+            mois -= 1
+            if mois < 1:  
+                mois = 12
+                annee -= 1
+            jour = jours_par_mois[mois - 1]
+                       
+        if jour < 10:
+            jour = '0' + str(jour)
+        else:
+            jour = str(jour)
+
+        if mois < 10:
+            mois = '0' + str(mois)
+        else:
+            mois = str(mois)
+
+        date = jour + '/' + mois + '/' + str(annee)
+        if annee < 2000 or annee > 2010:
+           print("Date hors limite :",date)
+           return 0
+
+    return jours_passe
+
+
+
+def compte_naissances_lune(fichier): # Anna
+    """Cette fonction utilise la fonction `lune` pour compter le nombre de naissances pour chaque jour avant la pleine lune."""    
+    dico_date = lune(fichier)  
+    resultat = {}
+        
+    for date, jours_passe in dico_date.items():
+        if jours_passe in resultat:
+            resultat[jours_passe] += 1
+        else:
+            resultat[jours_passe] = 1
+    
+    return resultat
 
 
 def jour_de_la_smn(jour, mois, annee):  ## Anais
@@ -145,7 +165,7 @@ def compte_naissances(fichier):  # Anais
             resultat[jour] += 1
         else:                     # Sinon, on ajoute le jour avec une valeur de 1
             resultat[jour] = 1
-    ordre_jours = ["Lundi", "Mardi", "Mercredi", "Jeudi", "Vendredi", "Samedi", "Dimanche"]       # Trier le dictionnaire par ordre des jours de la semaine
+    ordre_jours = ["Lundi", "Mardi", "Mercredi", "Jeudi", "Vendredi", "Samedi", "Dimanche"]   # Trier le dictionnaire par ordre des jours de la semaine
     resultat_trie = {jour: resultat[jour] for jour in ordre_jours if jour in resultat}
 
     return resultat_trie
@@ -158,12 +178,7 @@ def graph_naissances (fichier): # Anna
     liste_dates = extraire_dates(fichier)
     liste_jours = compter_jours(liste_dates)
     repartition_jours = compte_naissances(fichier)
-    
-#  species = (jour de la semaine)
-#penguin_means = {
-#    'Filles': (???),
-#    'Garçons': (???)'
-#}
+
     jours = list(repartition_jours.keys())  
     occurences = list(repartition_jours.values())  
     
@@ -181,6 +196,32 @@ def graph_naissances (fichier): # Anna
     ax.set_xticklabels(jours)
     
     plt.show()
+
+
+import matplotlib.pyplot as plt
+import numpy as np
+
+def graph_naissances_lune(fichier): # Anna
+    resultat = compte_naissances_lune(fichier)
     
+    jours = list(resultat.keys())  
+    occurences = list(resultat.values())  
+    
+    x = np.arange(len(jours))
+    width = 0.5  
+    
+    fig, ax = plt.subplots(figsize=(12, 6), layout='constrained')
+    
+    rects = ax.bar(x, occurences, width, label="Occurrences des jours", color='skyblue')
+    ax.bar_label(rects, padding=3)
+    
+    ax.set_ylabel('Naissances')
+    ax.set_title('Nombre de naissances par jour avant la pleine lune')
+    ax.set_xticks(x)
+    ax.set_xticklabels(jours)
+    
+    plt.show()
+
+
 
 
