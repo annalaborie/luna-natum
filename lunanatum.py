@@ -1,18 +1,8 @@
-def extraire_dates(fichiers): # Anna
-    liste_dates = []
-    for fichier in fichiers :
-        contenu_fichier = open(fichier, "r",encoding='ISO-8859-1')
-        chaine = contenu_fichier.read()
-        for i in range(len(chaine)-1):
-            if chaine[i] == '\n':
-                date = chaine[i+1:i+11]
-                liste_dates.append(date)
-        contenu_fichier.close()
-    return liste_dates
+import matplotlib.pyplot as plt
+import numpy as np
 
 
 fichiers = ['PN_test.csv','PN_22.csv','PN_21.csv','PN_12.csv','PN_11.csv','PN_02.csv','PN_01.csv']
-
 
 pleine_lune = ['21/01/2000','19/02/2000','20/03/2000','18/04/2000','18/05/2000','16/06/2000','16/07/2000','15/08/2000','13/09/2000','13/10/2000','11/11/2000','11/12/2000',
 '09/01/2001','08/02/2001','09/03/2001','08/04/2001','07/05/2001','06/06/2001','05/07/2001','04/08/2001','02/09/2001','02/10/2001','01/11/2001','30/11/2001','30/12/2001',
@@ -25,34 +15,60 @@ pleine_lune = ['21/01/2000','19/02/2000','20/03/2000','18/04/2000','18/05/2000',
 '22/01/2008','21/02/2008','21/03/2008','20/04/2008','20/05/2008','18/06/2008','18/07/2008','16/08/2008','15/09/2008','14/10/2008','13/11/2008','12/12/2008',
 '11/01/2009','09/02/2009','11/03/2009','09/04/2009','09/05/2009','07/06/2009','07/07/2009','06/08/2009','04/09/2009','04/10/2009','02/11/2009','02/12/2009','31/12/2009',
 '30/01/2010','28/02/2010','30/03/2010','28/04/2010','27/05/2010','26/06/2010','26/07/2010','24/08/2010','23/09/2010','23/10/2010','21/11/2010','21/12/2010']
-
+    
+jours = ["Samedi", "Dimanche", "Lundi", "Mardi", "Mercredi", "Jeudi", "Vendredi"]
+annees_bissextiles = [2000, 2004, 2008]
 jours_par_mois_normal = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31]
 jours_par_mois_bissextile = [31, 29, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31]
-annees_bissextiles = [2000, 2004, 2008]
 
-def lune(fichier): # Louane et Anna
+def extraire_et_separer(): #Anna
+    """Extrait les dates de naissance des fichiers et les sépare selon le sexe."""
+    dates_filles = []
+    dates_garcons = []
     
-    liste_date = extraire_dates(fichier)
+    for fichier in fichiers:
+        contenu_fichier = open(fichier, "r", encoding="ISO-8859-1")
+        chaine = contenu_fichier.read()
+        date = None  
+        for i in range(len(chaine)-1):
+            if chaine[i] == '\n':
+                date = chaine[i+1:i+11]
+                genre = chaine[i+12]
+                if genre == "F":
+                    dates_filles.append(date)
+                elif genre == "G":
+                    dates_garcons.append(date)
+        contenu_fichier.close()
+    
+    return dates_filles, dates_garcons
+
+filles, garcons = extraire_et_separer()
+liste_date_original = (filles) + (garcons)
+
+def lune(liste_date): # Louane et Anna
+    
     dico_date = {}
     
     for date in liste_date:
         annee = int(date[6:10])
         if 2000 <= annee <= 2010:
-           dico_date[date] = jourPasse(date)
+            dico_date[date] = jourPasse(date)
         
     return dico_date
 
 
-def jourPasse(date): # Anna et Louane
+def jourPasse(date_in): # Anna et Louane
     jours_passe = 0
-
+    date = date_in
     while date not in pleine_lune :
         mois = int(date[3:5])
         jour = int(date[0:2])
         annee = int(date[6:10])
              
         jours_passe +=1  
-        jour -= 1 
+        jour -= 1
+        jour_str =""
+        mois_str=""
         
         if annee in annees_bissextiles:
             jours_par_mois = jours_par_mois_bissextile
@@ -67,27 +83,27 @@ def jourPasse(date): # Anna et Louane
             jour = jours_par_mois[mois - 1]
                        
         if jour < 10:
-            jour = '0' + str(jour)
+            jour_str = '0' + str(jour)
         else:
-            jour = str(jour)
+            jour_str = str(jour)
 
         if mois < 10:
-            mois = '0' + str(mois)
+            mois_str = '0' + str(mois)
         else:
-            mois = str(mois)
+            mois_str = str(mois)
 
-        date = jour + '/' + mois + '/' + str(annee)
+        date = jour_str + '/' + mois_str + '/' + str(annee)
         if annee < 2000 or annee > 2010:
-           print("Date hors limite :",date)
-           return 0
+            print("Pas de pleine lune en 2000:",date_in)
+            return 0
 
     return jours_passe
 
 
 
-def compte_naissances_lune(fichier): # Anna
+def compte_naissances_lune(liste_dates): # Anna
     """Cette fonction utilise la fonction `lune` pour compter le nombre de naissances pour chaque jour avant la pleine lune."""    
-    dico_date = lune(fichier)  
+    dico_date = lune(liste_dates)  
     resultat = {}
         
     for date, jours_passe in dico_date.items():
@@ -102,11 +118,6 @@ def compte_naissances_lune(fichier): # Anna
 def jour_de_la_smn(jour, mois, annee):  ## Anais
     if annee < 2000 or annee > 2010:
         return "Année invalide"
-    
-    jours = ["Samedi", "Dimanche", "Lundi", "Mardi", "Mercredi", "Jeudi", "Vendredi"]
-    annees_bissextiles = [2000, 2004, 2008]
-    jours_par_mois_normal = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31]
-    jours_par_mois_bissextile = [31, 29, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31]
     
     if annee in annees_bissextiles:
         jours_par_mois = jours_par_mois_bissextile
@@ -150,13 +161,11 @@ def compter_jours(liste_dates):  # Mariia
 
     return jours_de_la_semaine
 
-def compte_naissances(fichier):  # Anais
+def compte_naissances(liste_dates):  # Anais
     
     """Cette fonction prend en argument le fichier, utilise `extraire_dates` pour obtenir la liste des dates,
     puis utilise `compter_jours` pour obtenir la liste des jours de la semaine et renvoie un dictionnaire des jours et de leur nombre d'occurrences."""
     
-    
-    liste_dates = extraire_dates(fichier) 
     liste_jours = compter_jours(liste_dates)
     
     resultat = {}                 # Créer un dictionnaire vide pour stocker les résultats
@@ -170,58 +179,70 @@ def compte_naissances(fichier):  # Anais
 
     return resultat_trie
 
+def genre (liste_dates) : # Anna
+    
+    """" Compte le nombre de naissances avant la pleine lune separement pour les filles te les garcons."""
+    
+    filles, garcons = extraire_et_separer()
+    
+    print('Liste des naissances filles par rapport à la pleine lune', compte_naissances_lune(filles))
+    print('Liste des naissances garçons par rapport à la pleine lune', compte_naissances_lune(garcons))
+    
+    return compte_naissances(filles), compte_naissances (garcons)
 
-import matplotlib.pyplot as plt
-import numpy as np
 
-def graph_naissances (fichier): # Anna
-    liste_dates = extraire_dates(fichier)
-    liste_jours = compter_jours(liste_dates)
-    repartition_jours = compte_naissances(fichier)
+def graph_naissances (): # Anna
 
-    jours = list(repartition_jours.keys())  
+    liste_jours = compter_jours(liste_date_original)
+    repartition_jours = compte_naissances(liste_date_original)
+
+    jours1 = list(repartition_jours.keys())  
     occurences = list(repartition_jours.values())  
     
-    x = np.arange(len(jours))
+    x = np.arange(len(jours1))
     width = 0.5  
 
     fig, ax = plt.subplots(layout='constrained')
     
-    rects = ax.bar(x, occurences, width, label="Occurrences des jours")
+    rects = ax.bar(x, occurences, width, label="Occurrences des jours",color='crimson',)
     ax.bar_label(rects, padding=3)
     
     ax.set_ylabel('Naissances')
     ax.set_title('Nombre de naissances par jour de la semaine')
     ax.set_xticks(x)
-    ax.set_xticklabels(jours)
+    ax.set_xticklabels(jours1)
     
     plt.show()
 
 
-import matplotlib.pyplot as plt
-import numpy as np
-
-def graph_naissances_lune(fichier): # Anna
-    resultat = compte_naissances_lune(fichier)
+def graph_naissances_genre():  # Anna
+    filles, garcons = extraire_et_separer()
+    resultat_filles = compte_naissances_lune(filles)
+    resultat_garcons = compte_naissances_lune(garcons)
     
-    jours = list(resultat.keys())  
-    occurences = list(resultat.values())  
+    jours1 = list(resultat_filles.keys()) 
     
-    x = np.arange(len(jours))
-    width = 0.5  
-    
+    occurences_filles = list(resultat_filles.values())  
+    occurences_garcons = list(resultat_garcons.values())
+   
+   
+    x = np.arange(len(jours1))
+    width = 0.4  
+       
     fig, ax = plt.subplots(figsize=(12, 6), layout='constrained')
     
-    rects = ax.bar(x, occurences, width, label="Occurrences des jours", color='skyblue')
-    ax.bar_label(rects, padding=3)
+    rects1 = ax.bar(x - width/2, occurences_filles, width, color='firebrick', label="Filles")
+    rects2 = ax.bar(x + width/2, occurences_garcons, width, color='seagreen', label="Garçons")
+    
+    ax.bar_label(rects1, padding=3)
+    ax.bar_label(rects2, padding=3)
     
     ax.set_ylabel('Naissances')
     ax.set_title('Nombre de naissances par jour avant la pleine lune')
     ax.set_xticks(x)
-    ax.set_xticklabels(jours)
+    ax.set_xticklabels(jours1) 
+    ax.legend()
     
     plt.show()
-
-
 
 
